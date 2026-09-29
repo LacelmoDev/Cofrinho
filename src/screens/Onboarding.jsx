@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ShieldCheck } from 'lucide-react'
-import Modal from '../components/Modal'
+import VerificarEmailModal from '../components/VerificarEmailModal'
 import { Porquinho } from '../components/EmptyState'
 import CampoSenha from '../components/CampoSenha'
 import { emailValido } from '../utils/constants'
-import { hashSenha } from '../utils/hash'
-import { setPerfil, setSenhaHash, onboardingFeito } from '../db/prefs'
+import { api } from '../api/api'
+import useLento from '../utils/useLento'
 
 const VAZIO = { nomeCompleto: '', username: '', telefone: '', email: '', senha: '', confirmar: '' }
 
@@ -23,56 +22,41 @@ function Campo({ rotulo, erro, children }) {
 export default function Onboarding({ aoConcluir, aoIrParaLogin }) {
   const [f, setF] = useState(VAZIO)
   const [tocado, setTocado] = useState({})
-  const [codigo, setCodigo] = useState(null) // código gerado (simulado)
-  const [digitado, setDigitado] = useState('')
-  const [erroCodigo, setErroCodigo] = useState('')
-  const [aGuardar, setAGuardar] = useState(false)
+  const [verificar, setVerificar] = useState(null) // { email, codigoDev, emailEnviado }
+  const [aEnviar, setAEnviar] = useState(false)
+  const [erroServidor, setErroServidor] = useState('')
+  const lento = useLento(aEnviar)
 
-  const mudar = (campo) => (e) => setF((s) => ({ ...s, [campo]: e.target.value }))
+  const mudar = (campo) => (e) => { setF((s) => ({ ...s, [campo]: e.target.value })); setErroServidor('') }
   const tocar = (campo) => () => setTocado((s) => ({ ...s, [campo]: true }))
 
   const erros = {
     nomeCompleto: f.nomeCompleto.trim().length < 3 ? 'Escreve o teu nome completo.' : '',
-    username: f.username.trim().length < 3 || /\s/.test(f.username) ? 'Mínimo 3 caracteres, sem espaços.' : '',
+    username: !/^[\w.-]{3,30}$/.test(f.username.trim()) ? '3 a 30 caracteres (letras, números, ponto, hífen ou _), sem espaços.' : '',
     telefone: f.telefone.replace(/\D/g, '').length < 9 ? 'Escreve um telefone válido.' : '',
     email: !emailValido(f.email) ? 'Escreve um email válido (com @ e .).' : '',
-    senha: f.senha.length < 4 ? 'A senha precisa de pelo menos 4 caracteres.' : '',
+    senha: f.senha.length < 6 ? 'A senha precisa de pelo menos 6 caracteres.' : '',
     confirmar: f.confirmar !== f.senha ? 'As senhas não coincidem.' : ''
   }
   const valido = Object.values(erros).every((e) => !e)
   const ver = (campo) => (tocado[campo] ? erros[campo] : '')
 
-  function submeter(e) {
+  async function submeter(e) {
     e.preventDefault()
     setTocado({ nomeCompleto: true, username: true, telefone: true, email: true, senha: true, confirmar: true })
     if (!valido) return
-    // FUTURO: aqui o backend (Brevo) envia o código real por email. Por agora é simulado.
-    setCodigo(String(Math.floor(100000 + Math.random() * 900000)))
-    setDigitado('')
-    setErroCodigo('')
-  }
-
-  async function verificar() {
-    if (digitado.trim() !== codigo) {
-      setErroCodigo('Código incorrecto. Tenta outra vez.')
-      return
-    }
-    setAGuardar(true)
+    setAEnviar(true)
+    setErroServidor('')
     try {
-      const hash = await hashSenha(f.senha)
-      const okPerfil = setPerfil({
-        nomeCompleto: f.nomeCompleto.trim(),
-        username: f.username.trim(),
-        telefone: f.telefone.trim(),
-        email: f.email.trim()
-      })
-      const okSenha = setSenhaHash(hash)
-      if (!okPerfil || !okSenha) throw new Error('armazenamento')
-      aoConcluir()
-    } catch {
-      setErroCodigo('Não foi possível guardar a conta neste dispositivo. Tenta outra vez.')
+      const r = await api.post('/auth/registar/', {
+        nomeCompleto: f.nomeCompleto.trim(), username: f.username.trim(), telefone: f.telefone.trim(),
+        email: f.email.trim(), senha: f.senha
+      }, { auth: false, timeout: 60000 })
+      setVerificar({ email: r.email, codigoDev: r.codigoDev || null, emailEnviado: r.emailEnviado })
+    } catch (err) {
+      setErroServidor(err.codigo === 'email_existente' ? 'Este email já tem conta. Toca em "Já tenho conta? Entrar".' : err.message)
     } finally {
-      setAGuardar(false)
+      setAEnviar(false)
     }
   }
 
@@ -85,15 +69,9 @@ export default function Onboarding({ aoConcluir, aoIrParaLogin }) {
             Cofrinho <span className="text-dourado">AO</span>
           </h1>
           <p className="mt-1 max-w-xs break-words text-sm text-textosec dark:text-textosec-dark">
-            Cria a tua conta. Os teus dados ficam guardados no teu telemóvel e funcionam sem internet.
+            Cria a tua conta. Os teus dados ficam no telemóvel, funcionam sem internet e sincronizam quando houver ligação.
           </p>
         </div>
-
-        {onboardingFeito() && (
-          <p className="mt-4 break-words rounded-2xl bg-dourado/15 p-3 text-xs font-medium">
-            Já existe uma conta neste dispositivo. Criar outra substitui o perfil e a senha (os teus gastos, receitas e metas mantêm-se).
-          </p>
-        )}
 
         <form onSubmit={submeter} className="mt-6 space-y-3" noValidate>
           <Campo rotulo="Nome completo" erro={ver('nomeCompleto')}>
@@ -114,42 +92,25 @@ export default function Onboarding({ aoConcluir, aoIrParaLogin }) {
           <Campo rotulo="Confirmar senha" erro={ver('confirmar')}>
             <CampoSenha value={f.confirmar} onChange={mudar('confirmar')} onBlur={tocar('confirmar')} autoComplete="new-password" />
           </Campo>
-          <motion.button whileTap={{ scale: 0.97 }} type="submit" className="btn-primario mt-2 w-full">
-            Criar conta
+          {erroServidor && <p role="alert" className="break-words text-sm font-medium text-rosa-dark dark:text-rosa">{erroServidor}</p>}
+          <motion.button whileTap={{ scale: 0.97 }} type="submit" disabled={aEnviar} className="btn-primario mt-2 w-full disabled:opacity-50">
+            {aEnviar ? 'A criar conta…' : 'Criar conta'}
           </motion.button>
+          {lento && <p className="text-center text-xs text-textosec dark:text-textosec-dark">A ligar ao servidor… pode demorar até 1 minuto na primeira vez.</p>}
           <button type="button" onClick={aoIrParaLogin} className="min-h-[44px] w-full text-sm font-semibold text-rosa">
             Já tenho conta? Entrar
           </button>
         </form>
       </motion.div>
 
-      <Modal aberto={codigo !== null} aoFechar={() => setCodigo(null)} titulo="Verificar email">
-        <div className="space-y-3">
-          <div className="flex items-start gap-2 text-sm text-textosec dark:text-textosec-dark">
-            <ShieldCheck size={18} className="mt-0.5 shrink-0 text-verde" />
-            <p className="break-words">Enviámos um código de 6 dígitos para {f.email.trim()}.</p>
-          </div>
-          <div className="rounded-2xl bg-rosa-light p-3 text-center dark:bg-rosa/15">
-            <p className="font-sora text-2xl font-extrabold tracking-[0.3em] text-rosa-dark dark:text-rosa">{codigo}</p>
-            <p className="mt-1 text-xs text-textosec dark:text-textosec-dark">
-              Modo desenvolvimento — o envio real por email (Brevo) liga quando o backend estiver configurado.
-            </p>
-          </div>
-          <input
-            className="campo text-center tracking-widest"
-            inputMode="numeric"
-            maxLength={6}
-            placeholder="Introduz o código"
-            value={digitado}
-            onChange={(e) => { setDigitado(e.target.value.replace(/\D/g, '')); setErroCodigo('') }}
-            aria-label="Código de verificação"
-          />
-          {erroCodigo && <p className="text-xs font-medium text-rosa-dark dark:text-rosa">{erroCodigo}</p>}
-          <motion.button whileTap={{ scale: 0.97 }} onClick={verificar} disabled={aGuardar || digitado.length < 6} className="btn-primario w-full disabled:opacity-50">
-            {aGuardar ? 'A guardar…' : 'Confirmar e entrar'}
-          </motion.button>
-        </div>
-      </Modal>
+      <VerificarEmailModal
+        aberto={!!verificar}
+        email={verificar?.email || ''}
+        codigoDev={verificar?.codigoDev}
+        emailEnviado={verificar?.emailEnviado ?? true}
+        aoFechar={() => setVerificar(null)}
+        aoVerificado={(d) => { setVerificar(null); aoConcluir(d) }}
+      />
     </div>
   )
 }

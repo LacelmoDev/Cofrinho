@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { motion } from 'framer-motion'
-import { db } from '../db/db'
+import { transacoesAtivas } from '../db/db'
 import CartaoSaldo from '../components/CartaoSaldo'
 import LinhaTransacao from '../components/LinhaTransacao'
 import NovoRegistoModal from '../components/NovoRegistoModal'
@@ -23,7 +23,7 @@ export default function Inicio({ modo, aoMensagem }) {
   const [novo, setNovo] = useState(null) // 'gasto' | 'receita' | null
   const [detalhe, setDetalhe] = useState(null)
 
-  const todas = useLiveQuery(() => db.transacoes.toArray(), [])
+  const todas = useLiveQuery(() => transacoesAtivas(), [])
 
   const lista = useMemo(
     () =>

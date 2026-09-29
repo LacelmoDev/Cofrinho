@@ -1,11 +1,14 @@
 // Preferências em localStorage. Falhas (modo privado, quota) nunca partem a app.
 const K = {
   perfil: 'cofrinho.perfil',
-  senha: 'cofrinho.senhaHash',
   modo: 'cofrinho.modo',
   tema: 'cofrinho.tema',
-  foto: 'cofrinho.foto'
+  foto: 'cofrinho.foto',
+  token: 'cofrinho.token',
+  dono: 'cofrinho.donoDados',
+  ultimoSync: 'cofrinho.ultimoSync'
 }
+const LEGADO = ['cofrinho.senhaHash'] // da versão sem servidor
 
 function ler(chave, padrao = null) {
   try {
@@ -27,13 +30,26 @@ function remover(chave) {
   try { localStorage.removeItem(chave) } catch { /* ignora */ }
 }
 
+// ---- Sessão (persistente: o token fica no dispositivo) ----
+export const getToken = () => ler(K.token)
+export const setToken = (t) => escrever(K.token, t)
+export const temSessao = () => !!getToken()
 export const getPerfil = () => ler(K.perfil)
-// FUTURO: estadoAssinatura passará a vir do backend (Multicaixa Express via AppyPay/ProxyPay) na v1.1.
-// Na v1 é sempre "gratuito" e nada é bloqueado.
-export const setPerfil = (p) => escrever(K.perfil, { ...p, estadoAssinatura: 'gratuito' })
-export const getSenhaHash = () => ler(K.senha)
-export const setSenhaHash = (h) => escrever(K.senha, h)
-export const onboardingFeito = () => !!getPerfil() && !!getSenhaHash()
+export const setPerfil = (p) => escrever(K.perfil, p)
+// Termina a sessão neste dispositivo. Os dados financeiros ficam guardados.
+export function limparSessao() {
+  remover(K.token)
+  remover(K.perfil)
+}
+export const limparLegado = () => LEGADO.forEach(remover)
+
+// A quem pertencem os dados guardados neste dispositivo (email da conta)
+export const getDonoDados = () => ler(K.dono)
+export const setDonoDados = (email) => escrever(K.dono, email)
+
+// Marca da última sincronização (devolvida pelo servidor)
+export const getUltimoSync = () => ler(K.ultimoSync)
+export const setUltimoSync = (v) => (v ? escrever(K.ultimoSync, v) : remover(K.ultimoSync))
 
 export const getModo = () => ler(K.modo, 'pessoal')
 export const setModo = (m) => escrever(K.modo, m)
@@ -41,15 +57,10 @@ export const setModo = (m) => escrever(K.modo, m)
 export const getTema = () => ler(K.tema, false)
 export const setTema = (escuro) => escrever(K.tema, !!escuro)
 
+// A foto fica só neste dispositivo
 export const getFoto = () => ler(K.foto)
 export const setFoto = (dataUrl) => escrever(K.foto, dataUrl)
-
-// "Esqueci a senha": limpa só perfil/senha/foto. Não toca na IndexedDB.
-export function limparConta() {
-  remover(K.perfil)
-  remover(K.senha)
-  remover(K.foto)
-}
+export const limparFoto = () => remover(K.foto)
 
 export function aplicarTema(escuro) {
   document.documentElement.classList.toggle('dark', !!escuro)

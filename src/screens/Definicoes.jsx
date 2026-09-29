@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { motion } from 'framer-motion'
-import { Download, LogOut, Moon, Pencil, Plus, Trash2 } from 'lucide-react'
-import { db, apagarCategoria } from '../db/db'
+import { CloudOff, Download, LogOut, Moon, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { categoriasAtivas, apagarCategoria } from '../db/db'
 import Avatar from '../components/Avatar'
 import Modal from '../components/Modal'
 import SegmentedControl from '../components/SegmentedControl'
@@ -16,11 +16,11 @@ function Cartao({ children, className = '' }) {
   return <section className={`rounded-3xl bg-cartao p-4 shadow-soft dark:bg-cartao-dark ${className}`}>{children}</section>
 }
 
-export default function Definicoes({ perfil, foto, modo, escuro, aoMudarModo, aoMudarTema, aoPerfilGuardado, aoPedirSair, instalar, aoMensagem }) {
+export default function Definicoes({ perfil, foto, modo, escuro, aoMudarModo, aoMudarTema, aoPerfilGuardado, aoPedirSair, instalar, aoMensagem, estadoSync, aoSincronizar }) {
   const [editando, setEditando] = useState(false)
   const [novaCat, setNovaCat] = useState(false)
   const [apagar, setApagar] = useState(null)
-  const categorias = useLiveQuery(() => db.categorias.toArray(), [])
+  const categorias = useLiveQuery(() => categoriasAtivas(), [])
 
   if (editando) {
     return (
@@ -82,6 +82,21 @@ export default function Definicoes({ perfil, foto, modo, escuro, aoMudarModo, ao
             aoMudar={aoMudarModo}
           />
         </div>
+      </Cartao>
+
+      <Cartao className="flex items-center gap-3">
+        {estadoSync.fase === 'offline' || estadoSync.fase === 'erro' ? <CloudOff size={22} className="shrink-0 text-textosec dark:text-textosec-dark" /> : <RefreshCw size={22} className={`shrink-0 text-verde ${estadoSync.fase === 'a_sincronizar' ? 'animate-spin' : ''}`} />}
+        <div className="min-w-0 flex-1">
+          <p className="font-medium">Sincronização</p>
+          <p className="break-words text-xs text-textosec dark:text-textosec-dark">
+            {estadoSync.fase === 'a_sincronizar' && 'A sincronizar…'}
+            {estadoSync.fase === 'offline' && 'Sem ligação. Os dados ficam no telemóvel e sincronizam quando voltares a ter internet.'}
+            {estadoSync.fase === 'erro' && `Não foi possível sincronizar: ${estadoSync.erro}`}
+            {estadoSync.fase === 'ok' && `Tudo sincronizado às ${new Date(estadoSync.ultimoSync).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}.`}
+            {estadoSync.fase === 'parado' && 'Ainda por sincronizar.'}
+          </p>
+        </div>
+        <motion.button whileTap={{ scale: 0.97 }} onClick={aoSincronizar} disabled={estadoSync.fase === 'a_sincronizar'} className="btn-secundario shrink-0 !px-3 text-sm disabled:opacity-50">Agora</motion.button>
       </Cartao>
 
       {instalar && (

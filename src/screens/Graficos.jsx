@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { motion } from 'framer-motion'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
-import { db } from '../db/db'
+import { transacoesAtivas } from '../db/db'
 import EmptyState from '../components/EmptyState'
 import { Termos, formatarMoeda } from '../utils/constants'
 
@@ -10,7 +10,7 @@ const PALETA = ['#EC5C82', '#F4B740', '#3FB07E', '#B98CD1', '#7EB6D9', '#E0A96D'
 
 export default function Graficos({ modo }) {
   const termos = Termos[modo]
-  const todas = useLiveQuery(() => db.transacoes.toArray(), [])
+  const todas = useLiveQuery(() => transacoesAtivas(), [])
 
   const { dados, total } = useMemo(() => {
     const mapa = {}

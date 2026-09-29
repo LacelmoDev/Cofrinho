@@ -118,3 +118,15 @@ Backend Django, login remoto, envio real de email (Brevo), SMS, sincronização/
 - [ ] Nenhum overflow a 360×640, nem com teclado aberto
 - [ ] `npm run build` + `npm run preview`: instalável e funciona offline
 - [ ] Lighthouse PWA verde (com os ícones finais)
+
+## 12. Backend e sincronização (v2 com conta)
+
+- A app fala com a API Django (`cofrinho-ao-api`). O endereço está em `src/api/api.js` e pode ser mudado com a variável `VITE_API_URL` (ex.: ficheiro `.env.local` com `VITE_API_URL=http://192.168.x.x:8000/api` para testar com o backend no PC).
+- **Sessão persistente:** depois de entrar, o token fica no dispositivo e a app abre logo (90 dias sem uso). "Sair" termina só a sessão deste dispositivo.
+- **Offline primeiro:** tudo é guardado no telemóvel (IndexedDB). O motor `src/sync/sync.js` envia o que mudou e recebe o que mudou nos outros dispositivos: ao entrar, ao voltar à app, quando volta a haver rede, 2,5 s depois de cada alteração e de minuto a minuto.
+- Registos apagados não desaparecem de imediato: ficam marcados como `apagado` para o apagar chegar aos outros dispositivos. Em conflitos, a última alteração ganha.
+- As categorias padrão existem em cada dispositivo e não se sincronizam; só as categorias criadas pelo utilizador.
+- Se outra conta entrar num dispositivo com dados de uma conta diferente, os dados locais da anterior são removidos (já estão no servidor se sincronizaram). Por isso o "Sair" tenta sincronizar primeiro.
+- A foto de perfil fica só no dispositivo. O email não se altera por agora.
+- O servidor gratuito do Render adormece: o primeiro pedido pode demorar até 1 minuto. A app acorda-o ao abrir e avisa quando está a demorar.
+- Senha mínima: 6 caracteres. "Esqueci a senha" agora usa um código enviado por email.

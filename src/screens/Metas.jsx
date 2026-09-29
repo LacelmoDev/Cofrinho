@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { motion } from 'framer-motion'
 import { Plus, Trash2 } from 'lucide-react'
-import { db, apagarMeta } from '../db/db'
+import { metasAtivas, transacoesAtivas, apagarMeta } from '../db/db'
 import Modal from '../components/Modal'
 import EmptyState from '../components/EmptyState'
 import NovaMetaModal from '../components/NovaMetaModal'
@@ -10,8 +10,8 @@ import AdicionarMetaModal from '../components/AdicionarMetaModal'
 import { formatarMoeda } from '../utils/constants'
 
 export default function Metas({ modo, aoMensagem }) {
-  const metas = useLiveQuery(() => db.metas.toArray(), [])
-  const transacoes = useLiveQuery(() => db.transacoes.toArray(), [])
+  const metas = useLiveQuery(() => metasAtivas(), [])
+  const transacoes = useLiveQuery(() => transacoesAtivas(), [])
   const [nova, setNova] = useState(false)
   const [adicionar, setAdicionar] = useState(null)
   const [apagar, setApagar] = useState(null)

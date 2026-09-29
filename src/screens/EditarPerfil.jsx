@@ -2,23 +2,24 @@ import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Camera } from 'lucide-react'
 import Avatar from '../components/Avatar'
-import { emailValido } from '../utils/constants'
 import { comprimirImagem } from '../utils/imagem'
+import { api } from '../api/api'
 import { setPerfil, setFoto } from '../db/prefs'
 
 export default function EditarPerfil({ perfil, foto, aoVoltar, aoGuardar }) {
-  const [f, setF] = useState({ nomeCompleto: perfil.nomeCompleto, username: perfil.username, telefone: perfil.telefone, email: perfil.email })
+  const [f, setF] = useState({ nomeCompleto: perfil.nomeCompleto, username: perfil.username, telefone: perfil.telefone })
   const [novaFoto, setNovaFoto] = useState(foto)
   const [tentou, setTentou] = useState(false)
   const [erroFoto, setErroFoto] = useState('')
+  const [erroServidor, setErroServidor] = useState('')
+  const [aGuardar, setAGuardar] = useState(false)
   const input = useRef(null)
 
-  const mudar = (c) => (e) => setF((s) => ({ ...s, [c]: e.target.value }))
+  const mudar = (c) => (e) => { setF((s) => ({ ...s, [c]: e.target.value })); setErroServidor('') }
   const erros = {
     nomeCompleto: f.nomeCompleto.trim().length < 3 ? 'Escreve o teu nome completo.' : '',
-    username: f.username.trim().length < 3 || /\s/.test(f.username) ? 'Mínimo 3 caracteres, sem espaços.' : '',
-    telefone: f.telefone.replace(/\D/g, '').length < 9 ? 'Escreve um telefone válido.' : '',
-    email: !emailValido(f.email) ? 'Escreve um email válido (com @ e .).' : ''
+    username: !/^[\w.-]{3,30}$/.test(f.username.trim()) ? '3 a 30 caracteres, sem espaços.' : '',
+    telefone: f.telefone.replace(/\D/g, '').length < 9 ? 'Escreve um telefone válido.' : ''
   }
   const valido = Object.values(erros).every((e) => !e)
 
@@ -34,14 +35,23 @@ export default function EditarPerfil({ perfil, foto, aoVoltar, aoGuardar }) {
     e.target.value = ''
   }
 
-  function guardar(e) {
+  async function guardar(e) {
     e.preventDefault()
     setTentou(true)
     if (!valido) return
-    const novo = { nomeCompleto: f.nomeCompleto.trim(), username: f.username.trim(), telefone: f.telefone.trim(), email: f.email.trim() }
-    setPerfil(novo)
-    if (novaFoto) setFoto(novaFoto)
-    aoGuardar({ ...novo, estadoAssinatura: 'gratuito' }, novaFoto)
+    setAGuardar(true)
+    try {
+      const novo = await api.patch('/auth/eu/', {
+        nomeCompleto: f.nomeCompleto.trim(), username: f.username.trim(), telefone: f.telefone.trim()
+      })
+      setPerfil(novo)
+      if (novaFoto) setFoto(novaFoto)
+      aoGuardar(novo, novaFoto)
+    } catch (err) {
+      setErroServidor(err.codigo === 'rede' ? 'Precisas de internet para guardar o perfil.' : err.message)
+    } finally {
+      setAGuardar(false)
+    }
   }
 
   const campo = (rotulo, chave, extra = {}) => (
@@ -68,6 +78,7 @@ export default function EditarPerfil({ perfil, foto, aoVoltar, aoGuardar }) {
           </span>
         </Avatar>
         <input ref={input} type="file" accept="image/*" onChange={escolherFoto} className="hidden" aria-label="Escolher foto" />
+        <p className="text-xs text-textosec dark:text-textosec-dark">A foto fica só neste dispositivo.</p>
         {erroFoto && <p className="text-xs font-medium text-rosa-dark dark:text-rosa">{erroFoto}</p>}
       </div>
 
@@ -75,8 +86,15 @@ export default function EditarPerfil({ perfil, foto, aoVoltar, aoGuardar }) {
         {campo('Nome completo', 'nomeCompleto', { autoComplete: 'name' })}
         {campo('Nome de utilizador', 'username', { autoCapitalize: 'none' })}
         {campo('Telefone', 'telefone', { inputMode: 'tel' })}
-        {campo('Email', 'email', { type: 'email', inputMode: 'email', autoCapitalize: 'none' })}
-        <motion.button whileTap={{ scale: 0.97 }} type="submit" className="btn-primario w-full">Guardar</motion.button>
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium">Email</span>
+          <input className="campo opacity-60" value={perfil.email} disabled aria-describedby="nota-email" />
+          <span id="nota-email" className="mt-1 block text-xs text-textosec dark:text-textosec-dark">O email não pode ser alterado por agora.</span>
+        </label>
+        {erroServidor && <p role="alert" className="break-words text-sm font-medium text-rosa-dark dark:text-rosa">{erroServidor}</p>}
+        <motion.button whileTap={{ scale: 0.97 }} type="submit" disabled={aGuardar} className="btn-primario w-full disabled:opacity-50">
+          {aGuardar ? 'A guardar…' : 'Guardar'}
+        </motion.button>
       </form>
     </motion.div>
   )

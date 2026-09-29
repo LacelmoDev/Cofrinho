@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { AlertTriangle } from 'lucide-react'
 import Modal from './Modal'
-import { db, adicionarTransacao } from '../db/db'
-import { CATEGORIA_POUPANCA, formatarMoeda, parseValor, VALOR_MAXIMO, MSG_VALOR_MAXIMO } from '../utils/constants'
+import { adicionarPoupancaAMeta } from '../db/db'
+import { formatarMoeda, parseValor, VALOR_MAXIMO, MSG_VALOR_MAXIMO } from '../utils/constants'
 
 // meta: meta seleccionada ou null. saldo: saldo total do modo actual.
 export default function AdicionarMetaModal({ meta, modo, saldo, aoFechar, aoMensagem }) {
@@ -19,17 +19,8 @@ export default function AdicionarMetaModal({ meta, modo, saldo, aoFechar, aoMens
     e.preventDefault()
     if (n <= 0) return setErro('Escreve um valor maior que zero.')
     if (n > VALOR_MAXIMO) return setErro(MSG_VALOR_MAXIMO)
-    // Regra crítica: cria um gasto "Poupança" e actualiza a meta, tudo ou nada.
-    await db.transaction('rw', db.transacoes, db.metas, async () => {
-      await adicionarTransacao({
-        tipo: 'gasto',
-        valor: n,
-        categoria: CATEGORIA_POUPANCA,
-        descricao: `Poupança: ${meta.nome}`,
-        modo
-      })
-      await db.metas.update(meta.id, { valorAtual: meta.valorAtual + n })
-    })
+    // Regra crítica: cria o gasto "Poupança" e actualiza a meta (ver db.js)
+    await adicionarPoupancaAMeta({ metaId: meta.id, valor: n, modo })
     aoMensagem('Valor adicionado à meta')
     aoFechar()
   }

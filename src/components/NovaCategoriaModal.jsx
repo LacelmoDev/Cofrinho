@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import Modal from './Modal'
-import { adicionarCategoria, db } from '../db/db'
+import { adicionarCategoria, categoriasAtivas } from '../db/db'
 
 export default function NovaCategoriaModal({ aberto, aoFechar, aoMensagem }) {
   const [nome, setNome] = useState('')
@@ -15,7 +15,7 @@ export default function NovaCategoriaModal({ aberto, aoFechar, aoMensagem }) {
     e.preventDefault()
     const n = nome.trim()
     if (n.length < 2) return setErro('Dá um nome à categoria.')
-    const existentes = await db.categorias.toArray()
+    const existentes = await categoriasAtivas()
     if (existentes.some((c) => c.tipo === tipo && c.nome.toLowerCase() === n.toLowerCase())) {
       return setErro('Já existe uma categoria com esse nome e tipo.')
     }

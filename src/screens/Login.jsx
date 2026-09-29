@@ -1,45 +1,34 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import Modal from '../components/Modal'
 import { Porquinho } from '../components/EmptyState'
 import CampoSenha from '../components/CampoSenha'
-import { hashSenha } from '../utils/hash'
-import { getPerfil, getSenhaHash, limparConta } from '../db/prefs'
+import VerificarEmailModal from '../components/VerificarEmailModal'
+import ResetSenhaModal from '../components/ResetSenhaModal'
+import { api, nomeDispositivo } from '../api/api'
+import useLento from '../utils/useLento'
 
-export default function Login({ aoEntrar, aoRecriarConta, aoCriarConta }) {
+export default function Login({ aoAutenticado, aoCriarConta, aviso, aoMensagem }) {
   const [ident, setIdent] = useState('')
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
-  const [aVerificar, setAVerificar] = useState(false)
-  const [esqueci, setEsqueci] = useState(false)
+  const [aEntrar, setAEntrar] = useState(false)
+  const [verificar, setVerificar] = useState(null) // { email }
+  const [reset, setReset] = useState(false)
+  const lento = useLento(aEntrar)
 
   async function entrar(e) {
     e.preventDefault()
-    const perfil = getPerfil()
-    if (!perfil) {
-      // FUTURO: com backend, aqui faz-se o login remoto (a conta funcionará em qualquer dispositivo).
-      setErro('Ainda não há conta neste dispositivo. Cria uma conta abaixo.')
-      return
-    }
-    setAVerificar(true)
+    setAEntrar(true)
+    setErro('')
     try {
-      const alvo = ident.trim().toLowerCase()
-      const identOk = alvo === perfil.username.toLowerCase() || alvo === perfil.email.toLowerCase()
-      const hash = await hashSenha(senha)
-      if (identOk && hash === getSenhaHash()) aoEntrar()
-      else setErro('Utilizador/email ou senha incorrectos.')
-    } catch {
-      setErro('Não foi possível verificar a senha. Tenta outra vez.')
+      const dados = await api.post('/auth/login/', { identificador: ident.trim(), senha, dispositivo: nomeDispositivo() }, { auth: false, timeout: 60000 })
+      aoAutenticado(dados)
+    } catch (err) {
+      if (err.codigo === 'email_nao_verificado' && err.dados?.email) setVerificar({ email: err.dados.email })
+      else setErro(err.message)
     } finally {
-      setAVerificar(false)
+      setAEntrar(false)
     }
-  }
-
-  function recriar() {
-    // Limpa só perfil, senha e foto. Transacções, categorias e metas (IndexedDB) ficam intactas.
-    limparConta()
-    setEsqueci(false)
-    aoRecriarConta()
   }
 
   return (
@@ -53,6 +42,8 @@ export default function Login({ aoEntrar, aoRecriarConta, aoCriarConta }) {
           <p className="mt-1 text-sm text-textosec dark:text-textosec-dark">Bem-vindo de volta!</p>
         </div>
 
+        {aviso && <p role="status" className="mt-4 break-words rounded-2xl bg-dourado/15 p-3 text-center text-sm font-medium">{aviso}</p>}
+
         <form onSubmit={entrar} className="mt-6 space-y-3" noValidate>
           <label className="block">
             <span className="mb-1 block text-sm font-medium">Utilizador ou email</span>
@@ -63,35 +54,33 @@ export default function Login({ aoEntrar, aoRecriarConta, aoCriarConta }) {
             <CampoSenha value={senha} onChange={(e) => { setSenha(e.target.value); setErro('') }} autoComplete="current-password" />
           </label>
           {erro && <p role="alert" className="break-words text-sm font-medium text-rosa-dark dark:text-rosa">{erro}</p>}
-          <motion.button whileTap={{ scale: 0.97 }} type="submit" disabled={aVerificar || !ident || !senha} className="btn-primario w-full disabled:opacity-50">
-            {aVerificar ? 'A entrar…' : 'Entrar'}
+          <motion.button whileTap={{ scale: 0.97 }} type="submit" disabled={aEntrar || !ident || !senha} className="btn-primario w-full disabled:opacity-50">
+            {aEntrar ? 'A entrar…' : 'Entrar'}
           </motion.button>
-          <button type="button" onClick={() => setEsqueci(true)} className="min-h-[44px] w-full text-sm font-semibold text-rosa">
+          {lento && <p className="text-center text-xs text-textosec dark:text-textosec-dark">A ligar ao servidor… pode demorar até 1 minuto na primeira vez.</p>}
+          <button type="button" onClick={() => setReset(true)} className="min-h-[44px] w-full text-sm font-semibold text-rosa">
             Esqueci a senha
           </button>
           <div className="border-t border-borda pt-3 text-center dark:border-borda-dark">
             <p className="text-sm text-textosec dark:text-textosec-dark">Ainda não tens conta?</p>
-            <button type="button" onClick={aoCriarConta} className="btn-secundario mt-2 w-full">
-              Criar conta
-            </button>
+            <button type="button" onClick={aoCriarConta} className="btn-secundario mt-2 w-full">Criar conta</button>
           </div>
         </form>
       </motion.div>
 
-      <Modal aberto={esqueci} aoFechar={() => setEsqueci(false)} titulo="Esqueci a senha">
-        <div className="space-y-4 text-sm">
-          <p className="break-words text-textosec dark:text-textosec-dark">
-            Como ainda não há servidor, a única forma é criar de novo a conta neste telemóvel.
-          </p>
-          <p className="break-words font-medium">
-            Os teus gastos, receitas, categorias e metas <strong>não são apagados</strong>. Só o perfil, a senha e a foto são repostos.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <motion.button whileTap={{ scale: 0.97 }} onClick={recriar} className="btn-primario flex-1 whitespace-nowrap">Recriar conta</motion.button>
-            <motion.button whileTap={{ scale: 0.97 }} onClick={() => setEsqueci(false)} className="btn-secundario flex-1">Cancelar</motion.button>
-          </div>
-        </div>
-      </Modal>
+      <VerificarEmailModal
+        aberto={!!verificar}
+        email={verificar?.email || ''}
+        pedirAoAbrir
+        aoFechar={() => setVerificar(null)}
+        aoVerificado={(d) => { setVerificar(null); aoAutenticado(d) }}
+      />
+      <ResetSenhaModal
+        aberto={reset}
+        emailInicial={ident}
+        aoFechar={() => setReset(false)}
+        aoConcluido={() => { setReset(false); aoMensagem('Senha alterada. Entra com a nova senha.') }}
+      />
     </div>
   )
 }
