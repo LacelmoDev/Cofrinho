@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { font-size: clamp(16px, 4.2vw, 18px); }
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #ECE6DD;
+  color: #3A332E;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+html.dark body { background: #08060A; color: #F6F1F4; }
+/* No escuro, as sombras somem: usa um contorno fino para separar os cartões */
+html.dark .shadow-soft { box-shadow: 0 0 0 1px #2A2431; }
+
+.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+*:focus-visible { outline: 2px solid #EC5C82; outline-offset: 2px; }
+button, input, select, textarea { font-family: inherit; }
+
+@layer components {
+  .btn-primario {
+    @apply min-h-[44px] rounded-2xl bg-dourado px-5 font-semibold text-texto shadow-dourado transition-colors hover:bg-dourado-dark;
+  }
+  .btn-secundario {
+    @apply min-h-[44px] rounded-2xl border border-borda bg-cartao px-5 font-semibold text-texto transition-colors dark:border-borda-dark dark:bg-cartao-dark dark:text-texto-dark;
+  }
+  .campo {
+    @apply min-h-[44px] w-full rounded-2xl border border-borda bg-cartao px-4 text-texto outline-none transition-colors focus:border-rosa dark:border-borda-dark dark:bg-cartao-dark dark:text-texto-dark;
+  }
+}
