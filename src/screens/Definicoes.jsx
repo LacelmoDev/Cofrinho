@@ -143,6 +143,10 @@ export default function Definicoes({ perfil, foto, modo, escuro, aoMudarModo, ao
         <LogOut size={18} /> Sair
       </motion.button>
 
+      <p className="pb-2 text-center text-xs text-textosec dark:text-textosec-dark">
+        Cofrinho AO · versão {typeof __BUILD__ !== 'undefined' ? __BUILD__ : 'dev'}
+      </p>
+
       <NovaCategoriaModal aberto={novaCat} aoFechar={() => setNovaCat(false)} aoMensagem={aoMensagem} />
       <Modal aberto={!!apagar} aoFechar={() => setApagar(null)} titulo="Apagar categoria?">
         <p className="mb-4 break-words text-sm text-textosec dark:text-textosec-dark">
