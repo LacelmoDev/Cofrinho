@@ -25,44 +25,53 @@ export default function Inicio({ modo, aoMensagem }) {
 
   const todas = useLiveQuery(() => transacoesAtivas(), [])
 
+  const doModo = useMemo(() => (todas || []).filter((t) => t.modo === modo), [todas, modo])
+
+  // O saldo é o que tens agora: soma de tudo, sem depender do filtro de período.
+  const saldo = useMemo(() => doModo.reduce((s, t) => s + (t.tipo === 'receita' ? t.valor : -t.valor), 0), [doModo])
+
   const lista = useMemo(
-    () =>
-      (todas || [])
-        .filter((t) => t.modo === modo && dentroDoPeriodo(t.data, periodo))
-        .sort((a, b) => new Date(b.data) - new Date(a.data)),
-    [todas, modo, periodo]
+    () => doModo.filter((t) => dentroDoPeriodo(t.data, periodo)).sort((a, b) => new Date(b.data) - new Date(a.data)),
+    [doModo, periodo]
   )
 
+  // Entradas e saídas mostram só o período escolhido
   const { entradas, saidas } = useMemo(() => {
     let e = 0, s = 0
     lista.forEach((t) => (t.tipo === 'receita' ? (e += t.valor) : (s += t.valor)))
     return { entradas: e, saidas: s }
   }, [lista])
 
-  return (
-    <div className="space-y-4">
-      <CartaoSaldo termos={termos} saldo={entradas - saidas} entradas={entradas} saidas={saidas} />
+  const rotuloPeriodo = OPCOES_PERIODO.find((o) => o.valor === periodo)?.rotulo
 
-      <div className="grid grid-cols-2 gap-2">
-        <motion.button whileTap={{ scale: 0.97 }} onClick={() => setNovo('gasto')} className="btn-primario px-3 py-2 text-sm leading-tight">
-          {termos.novoGasto}
-        </motion.button>
-        <motion.button whileTap={{ scale: 0.97 }} onClick={() => setNovo('receita')} className="btn-secundario px-3 py-2 text-sm leading-tight">
-          {termos.novaReceita}
-        </motion.button>
+  return (
+    <div className="space-y-4 lg:grid lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start lg:gap-6 lg:space-y-0">
+      <div className="space-y-4">
+        <CartaoSaldo termos={termos} saldo={saldo} entradas={entradas} saidas={saidas} periodo={rotuloPeriodo} />
+
+        <div className="grid grid-cols-2 gap-2">
+          <motion.button whileTap={{ scale: 0.97 }} onClick={() => setNovo('gasto')} className="btn-primario px-3 py-2 text-sm leading-tight">
+            {termos.novoGasto}
+          </motion.button>
+          <motion.button whileTap={{ scale: 0.97 }} onClick={() => setNovo('receita')} className="btn-secundario px-3 py-2 text-sm leading-tight">
+            {termos.novaReceita}
+          </motion.button>
+        </div>
+
+        <SegmentedControl rotulo="Período" opcoes={OPCOES_PERIODO} valor={periodo} aoMudar={setPeriodo} />
       </div>
 
-      <SegmentedControl rotulo="Período" opcoes={OPCOES_PERIODO} valor={periodo} aoMudar={setPeriodo} />
-
-      {todas && lista.length === 0 ? (
-        <EmptyState titulo="Ainda sem registos" texto="Regista o teu primeiro movimento neste período com os botões acima." />
-      ) : (
-        <ul className="space-y-2">
-          {lista.map((t, i) => (
-            <LinhaTransacao key={t.id} t={t} indice={i} aoAbrir={setDetalhe} />
-          ))}
-        </ul>
-      )}
+      <div>
+        {todas && lista.length === 0 ? (
+          <EmptyState titulo="Sem registos neste período" texto="Escolhe outro período acima, ou regista um movimento com os botões." />
+        ) : (
+          <ul className="space-y-2">
+            {lista.map((t, i) => (
+              <LinhaTransacao key={t.id} t={t} indice={i} aoAbrir={setDetalhe} />
+            ))}
+          </ul>
+        )}
+      </div>
 
       <NovoRegistoModal tipo={novo} modo={modo} aoFechar={() => setNovo(null)} aoGuardar={aoMensagem} />
       <DetalheTransacaoModal t={detalhe} aoFechar={() => setDetalhe(null)} aoMensagem={aoMensagem} />

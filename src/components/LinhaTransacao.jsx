@@ -27,14 +27,14 @@ export default function LinhaTransacao({ t, indice = 0, aoAbrir }) {
         onClick={() => aoAbrir(t)}
         className="flex min-h-[64px] w-full items-center gap-3 rounded-2xl bg-cartao p-3 text-left shadow-soft dark:bg-cartao-dark"
       >
-        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${receita ? 'bg-verde-light text-verde dark:bg-verde/15' : 'bg-rosa-light text-rosa dark:bg-rosa/15'}`}>
+        <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${receita ? 'bg-verde-light text-verde-dark dark:text-verde dark:bg-verde/15' : 'bg-rosa-light text-rosa-dark dark:text-rosa dark:bg-rosa/15'}`}>
           <Icone size={20} />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-semibold">{t.categoria}</span>
           <span className="block text-xs text-textosec dark:text-textosec-dark">{formatarData(t.data)}</span>
         </span>
-        <span className={`shrink-0 font-sora text-sm font-bold ${receita ? 'text-verde' : 'text-rosa'}`}>
+        <span className={`shrink-0 font-sora text-sm font-bold ${receita ? 'text-verde-dark dark:text-verde' : 'text-rosa-dark dark:text-rosa'}`}>
           {receita ? '+' : '-'}{formatarMoeda(t.valor)}
         </span>
       </motion.button>

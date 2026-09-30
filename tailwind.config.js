@@ -5,13 +5,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        rosa: { DEFAULT: '#EC5C82', light: '#FDEBEF', dark: '#C2436A' },
+        rosa: { DEFAULT: '#EC5C82', light: '#FDEBEF', dark: '#B03A5F' },
         dourado: { DEFAULT: '#F4B740', dark: '#E0A02E' },
-        verde: { DEFAULT: '#3FB07E', light: '#E9F7F0' },
+        verde: { DEFAULT: '#3FB07E', light: '#E9F7F0', dark: '#21744B' },
         fundo: { DEFAULT: '#FFFCF7', dark: '#100D12' },
         cartao: { DEFAULT: '#FFFFFF', dark: '#1A1620' },
         texto: { DEFAULT: '#3A332E', dark: '#F6F1F4' },
-        textosec: { DEFAULT: '#9C8F80', dark: '#A69DAB' },
+        textosec: { DEFAULT: '#6F6356', dark: '#A69DAB' },
         borda: { DEFAULT: '#F0E8DC', dark: '#2A2431' }
       },
       fontFamily: {

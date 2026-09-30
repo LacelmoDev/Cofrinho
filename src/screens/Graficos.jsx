@@ -29,7 +29,11 @@ export default function Graficos({ modo }) {
         <EmptyState titulo="Sem dados para mostrar" texto={`Quando registares ${termos.gasto.toLowerCase()}s, vais vê-los aqui por categoria.`} />
       ) : (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl bg-cartao p-4 shadow-soft dark:bg-cartao-dark">
-          <div className="relative">
+          <div
+            className="relative"
+            role="img"
+            aria-label={`${termos.graficoTitulo}: ${dados.map((d) => `${d.nome} ${Math.round((d.valor / total) * 100)}%`).join(', ')}`}
+          >
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
                 <Pie data={dados} dataKey="valor" nameKey="nome" innerRadius={64} outerRadius={94} paddingAngle={2} stroke="none">

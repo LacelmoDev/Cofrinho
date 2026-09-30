@@ -32,6 +32,6 @@ button, input, select, textarea { font-family: inherit; }
     @apply min-h-[44px] rounded-2xl border border-borda bg-cartao px-5 font-semibold text-texto transition-colors dark:border-borda-dark dark:bg-cartao-dark dark:text-texto-dark;
   }
   .campo {
-    @apply min-h-[44px] w-full rounded-2xl border border-borda bg-cartao px-4 text-texto outline-none transition-colors focus:border-rosa dark:border-borda-dark dark:bg-cartao-dark dark:text-texto-dark;
+    @apply placeholder:text-textosec dark:placeholder:text-textosec-dark min-h-[44px] w-full rounded-2xl border border-borda bg-cartao px-4 text-texto outline-none transition-colors focus:border-rosa dark:border-borda-dark dark:bg-cartao-dark dark:text-texto-dark;
   }
 }

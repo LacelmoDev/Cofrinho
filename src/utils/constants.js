@@ -82,3 +82,6 @@ export function dentroDoPeriodo(iso, periodo, agora = new Date()) {
 // Limite razoável para um valor introduzido (evita números que não cabem no ecrã)
 export const VALOR_MAXIMO = 999999999999
 export const MSG_VALOR_MAXIMO = 'Valor demasiado grande.'
+
+// Versão dos Termos/Política aceites no registo (muda quando os textos mudarem)
+export const TERMOS_VERSAO = '2026-09-30'

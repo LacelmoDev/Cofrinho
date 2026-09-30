@@ -17,7 +17,7 @@ export default function SegmentedControl({ opcoes, valor, aoMudar, rotulo }) {
             onClick={() => aoMudar(o.valor)}
             className={`min-h-[44px] whitespace-nowrap rounded-2xl border px-4 text-sm font-semibold transition-colors ${
               activo
-                ? 'border-rosa bg-rosa text-white shadow-rosa'
+                ? 'border-rosa-dark bg-rosa-dark text-white shadow-rosa'
                 : 'border-borda bg-cartao text-texto dark:border-borda-dark dark:bg-cartao-dark dark:text-texto-dark'
             }`}
           >

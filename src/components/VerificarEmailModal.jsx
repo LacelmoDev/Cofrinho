@@ -59,7 +59,7 @@ export default function VerificarEmailModal({ aberto, email, codigoDev, emailEnv
     <Modal aberto={aberto} aoFechar={aoFechar} titulo="Verificar email">
       <div className="space-y-3">
         <div className="flex items-start gap-2 text-sm text-textosec dark:text-textosec-dark">
-          <ShieldCheck size={18} className="mt-0.5 shrink-0 text-verde" />
+          <ShieldCheck size={18} className="mt-0.5 shrink-0 text-verde-dark dark:text-verde" />
           <p className="break-words">Introduz o código de 6 dígitos enviado para {email}. Vê também a pasta de spam.</p>
         </div>
         {dev && (
@@ -82,7 +82,7 @@ export default function VerificarEmailModal({ aberto, email, codigoDev, emailEnv
           {aVerificar ? 'A verificar…' : 'Confirmar e entrar'}
         </motion.button>
         {lento && <p className="text-center text-xs text-textosec dark:text-textosec-dark">A ligar ao servidor… pode demorar até 1 minuto na primeira vez.</p>}
-        <button type="button" onClick={() => reenviar(false)} disabled={espera > 0} className="min-h-[44px] w-full text-sm font-semibold text-rosa disabled:opacity-50">
+        <button type="button" onClick={() => reenviar(false)} disabled={espera > 0} className="min-h-[44px] w-full text-sm font-semibold text-rosa-dark dark:text-rosa disabled:opacity-50">
           {espera > 0 ? `Reenviar código (${espera}s)` : 'Reenviar código'}
         </button>
       </div>

@@ -90,7 +90,7 @@ export default function DetalheTransacaoModal({ t, aoFechar, aoMensagem }) {
         </form>
       ) : (
         <div>
-          <p className={`mb-2 font-sora text-3xl font-bold tracking-tight ${receita ? 'text-verde' : 'text-rosa'}`}>
+          <p className={`mb-2 font-sora text-3xl font-bold tracking-tight ${receita ? 'text-verde-dark dark:text-verde' : 'text-rosa-dark dark:text-rosa'}`}>
             {receita ? '+' : '-'}{formatarMoeda(t.valor)}
           </p>
           <Linha rotulo="Tipo">{receita ? 'Receita' : termos.gasto}</Linha>

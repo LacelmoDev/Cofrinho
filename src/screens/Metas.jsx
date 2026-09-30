@@ -67,7 +67,7 @@ export default function Metas({ modo, aoMensagem }) {
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-2">
                   <p className="min-w-0 break-words text-sm text-textosec dark:text-textosec-dark">
-                    {formatarMoeda(m.valorAtual)} de {formatarMoeda(m.valorAlvo)} <span className="font-semibold text-rosa">({pct}%)</span>
+                    {formatarMoeda(m.valorAtual)} de {formatarMoeda(m.valorAlvo)} <span className="font-semibold text-rosa-dark dark:text-rosa">({pct}%)</span>
                   </p>
                   <motion.button whileTap={{ scale: 0.97 }} onClick={() => setAdicionar(m)} className="btn-secundario shrink-0 !px-4 text-sm">
                     Adicionar

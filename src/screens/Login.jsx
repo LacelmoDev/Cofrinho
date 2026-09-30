@@ -33,7 +33,7 @@ export default function Login({ aoAutenticado, aoCriarConta, aviso, aoMensagem }
 
   return (
     <div className="safe-top safe-bottom flex h-full flex-col overflow-y-auto px-6 py-8">
-      <motion.div className="my-auto" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+      <motion.div className="mx-auto my-auto w-full max-w-md" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex flex-col items-center text-center">
           <Porquinho tamanho={100} />
           <h1 className="mt-2 font-sora text-2xl font-extrabold tracking-tight">
@@ -58,7 +58,7 @@ export default function Login({ aoAutenticado, aoCriarConta, aviso, aoMensagem }
             {aEntrar ? 'A entrar…' : 'Entrar'}
           </motion.button>
           {lento && <p className="text-center text-xs text-textosec dark:text-textosec-dark">A ligar ao servidor… pode demorar até 1 minuto na primeira vez.</p>}
-          <button type="button" onClick={() => setReset(true)} className="min-h-[44px] w-full text-sm font-semibold text-rosa">
+          <button type="button" onClick={() => setReset(true)} className="min-h-[44px] w-full text-sm font-semibold text-rosa-dark dark:text-rosa">
             Esqueci a senha
           </button>
           <div className="border-t border-borda pt-3 text-center dark:border-borda-dark">
@@ -66,6 +66,11 @@ export default function Login({ aoAutenticado, aoCriarConta, aviso, aoMensagem }
             <button type="button" onClick={aoCriarConta} className="btn-secundario mt-2 w-full">Criar conta</button>
           </div>
         </form>
+        <p className="mt-4 text-center text-xs text-textosec dark:text-textosec-dark">
+          <a href="/privacidade.html" target="_blank" rel="noopener" className="underline">Privacidade</a> ·{' '}
+          <a href="/termos.html" target="_blank" rel="noopener" className="underline">Termos</a> ·{' '}
+          <a href="/armazenamento.html" target="_blank" rel="noopener" className="underline">Armazenamento local</a>
+        </p>
       </motion.div>
 
       <VerificarEmailModal

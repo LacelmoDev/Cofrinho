@@ -22,7 +22,7 @@ function Numero({ valor }) {
   return <span ref={ref}>{formatarMoeda(valor)}</span>
 }
 
-export default function CartaoSaldo({ termos, saldo, entradas, saidas }) {
+export default function CartaoSaldo({ termos, saldo, entradas, saidas, periodo }) {
   const negativo = saldo < 0
   const tam = formatarMoeda(saldo).length
   const classeSaldo = tam > 17 ? 'text-xl' : tam > 14 ? 'text-2xl' : tam > 11 ? 'text-3xl' : 'text-4xl'
@@ -32,7 +32,7 @@ export default function CartaoSaldo({ termos, saldo, entradas, saidas }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       aria-label={termos.saldo}
-      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rosa to-rosa-dark p-5 text-white shadow-rosa"
+      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#C2436A] to-[#9C3358] p-5 text-white shadow-rosa"
     >
       {/* Detalhes decorativos */}
       <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
@@ -56,13 +56,13 @@ export default function CartaoSaldo({ termos, saldo, entradas, saidas }) {
       <div className="relative mt-5 grid grid-cols-2 gap-3">
         <div className="rounded-2xl bg-white/15 p-3">
           <p className="flex items-center gap-1 text-xs font-medium text-white/85">
-            <ArrowDownLeft size={14} /> {termos.entradas}
+            <ArrowDownLeft size={14} /> {termos.entradas}{periodo ? ` · ${periodo}` : ''}
           </p>
           <p className={`mt-0.5 whitespace-nowrap font-sora ${classeParcial(entradas)} font-bold`}>{formatarMoeda(entradas)}</p>
         </div>
         <div className="rounded-2xl bg-white/15 p-3">
           <p className="flex items-center gap-1 text-xs font-medium text-white/85">
-            <ArrowUpRight size={14} /> {termos.saidas}
+            <ArrowUpRight size={14} /> {termos.saidas}{periodo ? ` · ${periodo}` : ''}
           </p>
           <p className={`mt-0.5 whitespace-nowrap font-sora ${classeParcial(saidas)} font-bold`}>{formatarMoeda(saidas)}</p>
         </div>

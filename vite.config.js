@@ -16,7 +16,7 @@ export default defineConfig({
         description: 'Controlo de gastos, receitas e metas de poupança em Kwanzas.',
         lang: 'pt-AO',
         display: 'standalone',
-        orientation: 'portrait',
+        orientation: 'any',
         start_url: '/',
         theme_color: '#EC5C82',
         background_color: '#FFFCF7',
@@ -28,22 +28,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'google-fonts-css', cacheableResponse: { statuses: [0, 200] } }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-files',
-              expiration: { maxEntries: 20, maxAgeSeconds: 31536000 },
-              cacheableResponse: { statuses: [0, 200] }
-            }
-          }
-        ]
+        // Páginas legais são ficheiros próprios (não a app): não devem cair no index.html
+        navigateFallbackDenylist: [/^\/(privacidade|termos|armazenamento)\.html$/]
       }
     })
   ]

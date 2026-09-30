@@ -1,31 +1,63 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 
-// Bottom-sheet. max-h-[90dvh] + overflow-y-auto: os botões ficam sempre alcançáveis com o teclado aberto.
+const FOCAVEIS = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+// Bottom-sheet no telemóvel, janela centrada em tablets/PC.
+// max-h + overflow-y-auto: os botões ficam sempre alcançáveis com o teclado aberto.
 export default function Modal({ aberto, aoFechar, titulo, children }) {
+  const caixa = useRef(null)
+  const fechar = useRef(aoFechar)
+  fechar.current = aoFechar
+
   useEffect(() => {
     if (!aberto) return
-    const aoTecla = (e) => e.key === 'Escape' && aoFechar()
+    const anterior = document.activeElement
+    const t = setTimeout(() => {
+      const el = caixa.current
+      if (!el) return
+      const campo = el.querySelector('input:not([disabled]), textarea:not([disabled]), select:not([disabled])')
+      ;(campo || el).focus()
+    }, 60)
+    const aoTecla = (e) => {
+      if (e.key === 'Escape') return fechar.current()
+      if (e.key !== 'Tab' || !caixa.current) return
+      const lista = caixa.current.querySelectorAll(FOCAVEIS)
+      if (!lista.length) return
+      const primeiro = lista[0]
+      const ultimo = lista[lista.length - 1]
+      if (e.shiftKey && (document.activeElement === primeiro || document.activeElement === caixa.current)) {
+        e.preventDefault(); ultimo.focus()
+      } else if (!e.shiftKey && document.activeElement === ultimo) {
+        e.preventDefault(); primeiro.focus()
+      }
+    }
     window.addEventListener('keydown', aoTecla)
-    return () => window.removeEventListener('keydown', aoTecla)
-  }, [aberto, aoFechar])
+    return () => {
+      clearTimeout(t)
+      window.removeEventListener('keydown', aoTecla)
+      if (anterior && anterior.focus) anterior.focus()
+    }
+  }, [aberto])
 
   return (
     <AnimatePresence>
       {aberto && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-[2px]"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-[2px] md:items-center md:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={aoFechar}
         >
           <motion.div
+            ref={caixa}
+            tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-label={titulo}
-            className="safe-bottom max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-cartao p-5 shadow-soft dark:bg-cartao-dark"
+            className="safe-bottom max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-cartao p-5 shadow-soft outline-none dark:bg-cartao-dark md:rounded-3xl"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}

@@ -12,6 +12,7 @@ import { sincronizar } from './sync/sync'
 import { aoHaverMudanca, getEstadoSync, observarEstadoSync, registarSessaoInvalida } from './sync/eventos'
 import { ABAS, MODO, Termos } from './utils/constants'
 import BottomNav from './components/BottomNav'
+import SideNav from './components/SideNav'
 import Modal from './components/Modal'
 import Toast from './components/Toast'
 import { Porquinho } from './components/EmptyState'
@@ -137,6 +138,19 @@ export default function App() {
     setEcra('app')
   }
 
+  // Conta eliminada no servidor: apaga tudo o que ficou neste dispositivo
+  async function contaEliminada() {
+    await limparDadosLocais()
+    limparSessao()
+    limparFoto()
+    setDonoDados(null)
+    setUltimoSync(null)
+    setPerfilEstado(null)
+    setFotoEstado(null)
+    setAvisoLogin('A tua conta e os teus dados foram eliminados.')
+    setEcra('login')
+  }
+
   function mudarModo(novo) {
     setModo(novo)
     guardarModo(novo)
@@ -164,8 +178,8 @@ export default function App() {
   const termos = Termos[modo]
 
   return (
-    <div className="flex h-[100dvh] w-full justify-center">
-      <div className="relative h-full w-full max-w-md overflow-hidden bg-fundo text-texto shadow-soft transition-colors duration-300 dark:bg-fundo-dark dark:text-texto-dark">
+    <div className="flex h-[100dvh] w-full justify-center md:items-center">
+      <div className="relative h-full w-full max-w-md overflow-hidden md:h-[calc(100%-2rem)] md:max-w-5xl md:rounded-3xl md:border md:border-borda dark:md:border-borda-dark bg-fundo text-texto shadow-soft transition-colors duration-300 dark:bg-fundo-dark dark:text-texto-dark">
         {ecra === 'carregar' && (
           <div className="flex h-full flex-col items-center justify-center gap-3">
             <motion.div animate={{ y: [0, -8, 0] }} transition={{ repeat: Infinity, duration: 1.2 }}>
@@ -190,45 +204,52 @@ export default function App() {
         )}
 
         {ecra === 'app' && (
-          <motion.div className="flex h-full flex-col" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-            <header className="safe-top flex items-center justify-between px-5 pb-2 pt-4">
-              <p className="font-sora text-lg font-extrabold">
-                Cofrinho <span className="text-dourado">AO</span>
-              </p>
-              <div className="flex items-center gap-2">
-                {estadoSync.fase === 'a_sincronizar' && <RefreshCw size={16} className="animate-spin text-textosec dark:text-textosec-dark" aria-label="A sincronizar" />}
-                {(estadoSync.fase === 'offline' || estadoSync.fase === 'erro') && <CloudOff size={16} className="text-textosec dark:text-textosec-dark" aria-label="Sem sincronização" />}
-                <span className="rounded-full bg-rosa-light px-3 py-1 text-xs font-semibold text-rosa-dark dark:bg-rosa/20 dark:text-rosa">
-                  {termos.rotulo}
-                </span>
-              </div>
-            </header>
+          <motion.div className="flex h-full" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+            <a href="#conteudo" className="sr-only z-[70] rounded-xl bg-cartao px-4 py-2 font-semibold text-texto focus:not-sr-only focus:absolute focus:left-3 focus:top-3 dark:bg-cartao-dark dark:text-texto-dark">
+              Saltar para o conteúdo
+            </a>
+            <SideNav aba={aba} aoMudar={setAba} />
+            <div className="relative flex min-w-0 flex-1 flex-col">
+              <header className="safe-top flex items-center justify-between px-5 pb-2 pt-4 md:justify-end md:px-8">
+                <p className="font-sora text-lg font-extrabold md:hidden">
+                  Cofrinho <span className="text-dourado">AO</span>
+                </p>
+                <div className="flex items-center gap-2">
+                  {estadoSync.fase === 'a_sincronizar' && <RefreshCw size={16} className="animate-spin text-textosec dark:text-textosec-dark" aria-label="A sincronizar" />}
+                  {(estadoSync.fase === 'offline' || estadoSync.fase === 'erro') && <CloudOff size={16} className="text-textosec dark:text-textosec-dark" aria-label="Sem sincronização" />}
+                  <span className="rounded-full bg-rosa-light px-3 py-1 text-xs font-semibold text-rosa-dark dark:bg-rosa/20 dark:text-rosa">
+                    {termos.rotulo}
+                  </span>
+                </div>
+              </header>
 
-            <main className="flex-1 overflow-y-auto px-5 pb-28">
-              <motion.div key={aba} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-                {aba === ABAS.INICIO && <Inicio modo={modo} aoMensagem={setToast} />}
-                {aba === ABAS.GRAFICO && <Graficos modo={modo} />}
-                {aba === ABAS.METAS && <Metas modo={modo} aoMensagem={setToast} />}
-                {aba === ABAS.DEFINICOES && perfil && (
-                  <Definicoes
-                    perfil={perfil}
-                    foto={foto}
-                    modo={modo}
-                    escuro={escuro}
-                    aoMudarModo={mudarModo}
-                    aoMudarTema={mudarTema}
-                    aoPerfilGuardado={(p, f) => { setPerfilEstado(p); setFotoEstado(f) }}
-                    aoPedirSair={() => setConfirmarSair(true)}
-                    instalar={promptInstalar ? instalar : null}
-                    aoMensagem={setToast}
-                    estadoSync={estadoSync}
-                    aoSincronizar={sincronizarJa}
-                  />
-                )}
-              </motion.div>
-            </main>
+              <main id="conteudo" tabIndex={-1} className="flex-1 overflow-y-auto px-5 pb-28 outline-none md:px-8 md:pb-8">
+                <motion.div key={aba} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+                  {aba === ABAS.INICIO && <Inicio modo={modo} aoMensagem={setToast} />}
+                  {aba === ABAS.GRAFICO && <Graficos modo={modo} />}
+                  {aba === ABAS.METAS && <Metas modo={modo} aoMensagem={setToast} />}
+                  {aba === ABAS.DEFINICOES && perfil && (
+                    <Definicoes
+                      perfil={perfil}
+                      foto={foto}
+                      modo={modo}
+                      escuro={escuro}
+                      aoMudarModo={mudarModo}
+                      aoMudarTema={mudarTema}
+                      aoPerfilGuardado={(p, f) => { setPerfilEstado(p); setFotoEstado(f) }}
+                      aoPedirSair={() => setConfirmarSair(true)}
+                      aoContaEliminada={contaEliminada}
+                      instalar={promptInstalar ? instalar : null}
+                      aoMensagem={setToast}
+                      estadoSync={estadoSync}
+                      aoSincronizar={sincronizarJa}
+                    />
+                  )}
+                </motion.div>
+              </main>
 
-            <BottomNav aba={aba} aoMudar={setAba} />
+              <BottomNav aba={aba} aoMudar={setAba} />
+            </div>
           </motion.div>
         )}
 

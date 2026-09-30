@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { Home, PieChart, Target, Settings } from 'lucide-react'
 import { ABAS } from '../utils/constants'
 
-const ITENS = [
+export const ITENS = [
   { id: ABAS.INICIO, rotulo: 'Início', Icone: Home },
   { id: ABAS.GRAFICO, rotulo: 'Gráfico', Icone: PieChart },
   { id: ABAS.METAS, rotulo: 'Metas', Icone: Target },
@@ -11,7 +11,7 @@ const ITENS = [
 
 export default function BottomNav({ aba, aoMudar }) {
   return (
-    <nav aria-label="Navegação principal" className="safe-bottom absolute inset-x-0 bottom-0 z-40 px-4 pb-3">
+    <nav aria-label="Navegação principal" className="safe-bottom absolute inset-x-0 bottom-0 z-40 px-4 pb-3 md:hidden">
       <div className="flex items-center justify-between rounded-3xl border border-borda/70 bg-cartao/80 p-1.5 shadow-soft backdrop-blur-xl dark:border-borda-dark dark:bg-cartao-dark/80">
         {ITENS.map(({ id, rotulo, Icone }) => {
           const activo = aba === id
@@ -26,7 +26,7 @@ export default function BottomNav({ aba, aoMudar }) {
               {activo && (
                 <motion.span
                   layoutId="nav-indicador"
-                  className="absolute inset-0 rounded-2xl bg-rosa shadow-rosa"
+                  className="absolute inset-0 rounded-2xl bg-rosa-dark shadow-rosa"
                   transition={{ type: 'spring', damping: 26, stiffness: 340 }}
                 />
               )}

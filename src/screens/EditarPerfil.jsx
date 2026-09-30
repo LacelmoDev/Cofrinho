@@ -7,7 +7,7 @@ import { api } from '../api/api'
 import { setPerfil, setFoto } from '../db/prefs'
 
 export default function EditarPerfil({ perfil, foto, aoVoltar, aoGuardar }) {
-  const [f, setF] = useState({ nomeCompleto: perfil.nomeCompleto, username: perfil.username, telefone: perfil.telefone })
+  const [f, setF] = useState({ nomeCompleto: perfil.nomeCompleto, username: perfil.username, telefone: perfil.telefone || '' })
   const [novaFoto, setNovaFoto] = useState(foto)
   const [tentou, setTentou] = useState(false)
   const [erroFoto, setErroFoto] = useState('')
@@ -19,7 +19,7 @@ export default function EditarPerfil({ perfil, foto, aoVoltar, aoGuardar }) {
   const erros = {
     nomeCompleto: f.nomeCompleto.trim().length < 3 ? 'Escreve o teu nome completo.' : '',
     username: !/^[\w.-]{3,30}$/.test(f.username.trim()) ? '3 a 30 caracteres, sem espaços.' : '',
-    telefone: f.telefone.replace(/\D/g, '').length < 9 ? 'Escreve um telefone válido.' : ''
+    telefone: f.telefone.trim() && f.telefone.replace(/\D/g, '').length < 9 ? 'Escreve um telefone válido (ou deixa em branco).' : ''
   }
   const valido = Object.values(erros).every((e) => !e)
 
@@ -85,7 +85,7 @@ export default function EditarPerfil({ perfil, foto, aoVoltar, aoGuardar }) {
       <form onSubmit={guardar} className="space-y-3" noValidate>
         {campo('Nome completo', 'nomeCompleto', { autoComplete: 'name' })}
         {campo('Nome de utilizador', 'username', { autoCapitalize: 'none' })}
-        {campo('Telefone', 'telefone', { inputMode: 'tel' })}
+        {campo('Telefone (opcional)', 'telefone', { inputMode: 'tel' })}
         <label className="block">
           <span className="mb-1 block text-sm font-medium">Email</span>
           <input className="campo opacity-60" value={perfil.email} disabled aria-describedby="nota-email" />
