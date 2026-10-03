@@ -53,16 +53,17 @@ export default function CartaoSaldo({ termos, saldo, entradas, saidas, periodo }
         )}
       </div>
 
-      <div className="relative mt-5 grid grid-cols-2 gap-3">
+      {periodo && <p className="relative mt-4 text-xs font-medium text-white/90">Movimentos · {periodo}</p>}
+      <div className="relative mt-2 grid grid-cols-2 gap-3">
         <div className="rounded-2xl bg-white/15 p-3">
           <p className="flex items-center gap-1 text-xs font-medium text-white/85">
-            <ArrowDownLeft size={14} /> {termos.entradas}{periodo ? ` · ${periodo}` : ''}
+            <ArrowDownLeft size={14} /> {termos.entradas}
           </p>
           <p className={`mt-0.5 whitespace-nowrap font-sora ${classeParcial(entradas)} font-bold`}>{formatarMoeda(entradas)}</p>
         </div>
         <div className="rounded-2xl bg-white/15 p-3">
           <p className="flex items-center gap-1 text-xs font-medium text-white/85">
-            <ArrowUpRight size={14} /> {termos.saidas}{periodo ? ` · ${periodo}` : ''}
+            <ArrowUpRight size={14} /> {termos.saidas}
           </p>
           <p className={`mt-0.5 whitespace-nowrap font-sora ${classeParcial(saidas)} font-bold`}>{formatarMoeda(saidas)}</p>
         </div>

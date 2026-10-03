@@ -18,8 +18,6 @@ html.dark body { background: #08060A; color: #F6F1F4; }
 /* No escuro, as sombras somem: usa um contorno fino para separar os cartões */
 html.dark .shadow-soft { box-shadow: 0 0 0 1px #2A2431; }
 
-.safe-top { padding-top: env(safe-area-inset-top); }
-.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
 *:focus-visible { outline: 2px solid #EC5C82; outline-offset: 2px; }
 button, input, select, textarea { font-family: inherit; }

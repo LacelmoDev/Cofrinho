@@ -178,8 +178,8 @@ export default function App() {
   const termos = Termos[modo]
 
   return (
-    <div className="flex h-[100dvh] w-full justify-center md:items-center">
-      <div className="relative h-full w-full max-w-md overflow-hidden md:h-[calc(100%-2rem)] md:max-w-5xl md:rounded-3xl md:border md:border-borda dark:md:border-borda-dark bg-fundo text-texto shadow-soft transition-colors duration-300 dark:bg-fundo-dark dark:text-texto-dark">
+    <div className="flex h-[100dvh] w-full justify-center">
+      <div className="relative h-full w-full max-w-md overflow-hidden md:max-w-none bg-fundo text-texto shadow-soft transition-colors duration-300 dark:bg-fundo-dark dark:text-texto-dark">
         {ecra === 'carregar' && (
           <div className="flex h-full flex-col items-center justify-center gap-3">
             <motion.div animate={{ y: [0, -8, 0] }} transition={{ repeat: Infinity, duration: 1.2 }}>
@@ -210,7 +210,7 @@ export default function App() {
             </a>
             <SideNav aba={aba} aoMudar={setAba} />
             <div className="relative flex min-w-0 flex-1 flex-col">
-              <header className="safe-top flex items-center justify-between px-5 pb-2 pt-4 md:justify-end md:px-8">
+              <header className="flex items-center justify-between px-5 pb-2 pt-[max(env(safe-area-inset-top),1rem)] md:justify-end md:px-8">
                 <p className="font-sora text-lg font-extrabold md:hidden">
                   Cofrinho <span className="text-dourado">AO</span>
                 </p>
@@ -223,8 +223,8 @@ export default function App() {
                 </div>
               </header>
 
-              <main id="conteudo" tabIndex={-1} className="flex-1 overflow-y-auto px-5 pb-28 outline-none md:px-8 md:pb-8">
-                <motion.div key={aba} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+              <main id="conteudo" tabIndex={-1} className="flex-1 overflow-y-auto px-5 pb-32 outline-none md:px-8 md:pb-10">
+                <motion.div key={aba} className={`mx-auto w-full ${aba === ABAS.INICIO ? 'max-w-5xl' : 'max-w-3xl'}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
                   {aba === ABAS.INICIO && <Inicio modo={modo} aoMensagem={setToast} />}
                   {aba === ABAS.GRAFICO && <Graficos modo={modo} />}
                   {aba === ABAS.METAS && <Metas modo={modo} aoMensagem={setToast} />}

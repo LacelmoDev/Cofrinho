@@ -11,7 +11,7 @@ export const ITENS = [
 
 export default function BottomNav({ aba, aoMudar }) {
   return (
-    <nav aria-label="Navegação principal" className="safe-bottom absolute inset-x-0 bottom-0 z-40 px-4 pb-3 md:hidden">
+    <nav aria-label="Navegação principal" className="absolute inset-x-0 bottom-0 z-40 px-4 pb-[max(env(safe-area-inset-bottom),1rem)] md:hidden">
       <div className="flex items-center justify-between rounded-3xl border border-borda/70 bg-cartao/80 p-1.5 shadow-soft backdrop-blur-xl dark:border-borda-dark dark:bg-cartao-dark/80">
         {ITENS.map(({ id, rotulo, Icone }) => {
           const activo = aba === id

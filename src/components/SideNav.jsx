@@ -4,7 +4,7 @@ import { Porquinho } from './EmptyState'
 // Navegação lateral para tablets e computadores (a barra inferior é só para telemóveis)
 export default function SideNav({ aba, aoMudar }) {
   return (
-    <nav aria-label="Navegação principal" className="hidden w-56 shrink-0 flex-col gap-1 border-r border-borda p-4 dark:border-borda-dark md:flex">
+    <nav aria-label="Navegação principal" className="hidden w-60 shrink-0 flex-col gap-1 border-r border-borda bg-cartao p-4 dark:border-borda-dark dark:bg-cartao-dark md:flex">
       <div className="mb-4 flex items-center gap-2 px-2 pt-2">
         <Porquinho tamanho={36} />
         <p className="font-sora text-lg font-extrabold">

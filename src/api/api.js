@@ -2,7 +2,9 @@ import { getToken } from '../db/prefs'
 import { sessaoInvalida } from '../sync/eventos'
 
 // Endereço da API. Para outro servidor: variável VITE_API_URL (ex.: no ficheiro .env.local).
-export const API_URL = (import.meta.env?.VITE_API_URL || 'https://cofrinho-api-ru5z.onrender.com/api').replace(/\/$/, '')
+// Aceita o endereço com ou sem "/api" no fim (um erro comum ao configurar o .env.local).
+const BASE = (import.meta.env?.VITE_API_URL || 'https://cofrinho-api-ru5z.onrender.com/api').trim().replace(/\/+$/, '')
+export const API_URL = /\/api$/.test(BASE) ? BASE : `${BASE}/api`
 
 export class ErroApi extends Error {
   constructor(mensagem, { codigo = 'erro', status = 0, dados = null } = {}) {
@@ -32,7 +34,7 @@ export async function pedir(metodo, caminho, corpo, { auth = true, timeout = 450
     throw new ErroApi(
       e.name === 'AbortError'
         ? 'O servidor demorou demasiado a responder. Tenta outra vez.'
-        : 'Sem ligação ao servidor. Verifica a internet.',
+        : `Sem ligação ao servidor. Verifica a internet.${import.meta.env?.DEV ? ` (a app tentou ${API_URL} — se estás em localhost, confirma o endereço da API e o CORS)` : ''}`,
       { codigo: 'rede' }
     )
   } finally {
@@ -40,12 +42,15 @@ export async function pedir(metodo, caminho, corpo, { auth = true, timeout = 450
   }
 
   let dados = null
+  let texto = ''
   if (resposta.status !== 204) {
-    try { dados = await resposta.json() } catch { /* corpo vazio ou não-JSON */ }
+    texto = await resposta.text().catch(() => '')
+    try { dados = JSON.parse(texto) } catch { /* corpo vazio ou não-JSON (ex.: página de erro) */ }
   }
   if (!resposta.ok) {
     if (resposta.status === 401 && token) sessaoInvalida()
-    throw new ErroApi(dados?.erro || 'Ocorreu um erro. Tenta outra vez.', { codigo: dados?.codigo || 'erro', status: resposta.status, dados })
+    if (!dados?.erro && import.meta.env?.DEV) console.error(`[API] ${metodo} ${API_URL}${caminho} -> HTTP ${resposta.status}`, texto.slice(0, 500))
+    throw new ErroApi(dados?.erro || `Ocorreu um erro (código ${resposta.status}). Tenta outra vez.`, { codigo: dados?.codigo || 'erro', status: resposta.status, dados })
   }
   return dados
 }

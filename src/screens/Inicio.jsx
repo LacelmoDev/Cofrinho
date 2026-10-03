@@ -12,8 +12,8 @@ import { PERIODO, Termos, dentroDoPeriodo } from '../utils/constants'
 
 const OPCOES_PERIODO = [
   { valor: PERIODO.HOJE, rotulo: 'Hoje' },
-  { valor: PERIODO.SEMANA, rotulo: 'Esta semana' },
-  { valor: PERIODO.MES, rotulo: 'Este mês' },
+  { valor: PERIODO.SEMANA, rotulo: 'Semana' },
+  { valor: PERIODO.MES, rotulo: 'Mês' },
   { valor: PERIODO.TUDO, rotulo: 'Tudo' }
 ]
 
@@ -42,7 +42,7 @@ export default function Inicio({ modo, aoMensagem }) {
     return { entradas: e, saidas: s }
   }, [lista])
 
-  const rotuloPeriodo = OPCOES_PERIODO.find((o) => o.valor === periodo)?.rotulo
+  const rotuloPeriodo = { hoje: 'Hoje', semana: 'Esta semana', mes: 'Este mês', tudo: 'Todo o período' }[periodo]
 
   return (
     <div className="space-y-4 lg:grid lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start lg:gap-6 lg:space-y-0">

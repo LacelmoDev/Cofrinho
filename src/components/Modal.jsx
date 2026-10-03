@@ -4,7 +4,7 @@ import { X } from 'lucide-react'
 
 const FOCAVEIS = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
-// Bottom-sheet no telemóvel, janela centrada em tablets/PC.
+// Cartão flutuante junto ao fundo no telemóvel, janela centrada em tablets/PC.
 // max-h + overflow-y-auto: os botões ficam sempre alcançáveis com o teclado aberto.
 export default function Modal({ aberto, aoFechar, titulo, children }) {
   const caixa = useRef(null)
@@ -45,7 +45,7 @@ export default function Modal({ aberto, aoFechar, titulo, children }) {
     <AnimatePresence>
       {aberto && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-[2px] md:items-center md:p-6"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-3 pb-[max(env(safe-area-inset-bottom),1rem)] backdrop-blur-[2px] md:items-center md:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -57,10 +57,10 @@ export default function Modal({ aberto, aoFechar, titulo, children }) {
             role="dialog"
             aria-modal="true"
             aria-label={titulo}
-            className="safe-bottom max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-cartao p-5 shadow-soft outline-none dark:bg-cartao-dark md:rounded-3xl"
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
+            className="max-h-[88dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-cartao p-5 shadow-soft outline-none dark:bg-cartao-dark"
+            initial={{ y: 60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 60, opacity: 0 }}
             transition={{ type: 'spring', damping: 30, stiffness: 320 }}
             onClick={(e) => e.stopPropagation()}
           >

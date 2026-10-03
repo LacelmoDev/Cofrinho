@@ -15,7 +15,7 @@ export default function SegmentedControl({ opcoes, valor, aoMudar, rotulo }) {
             aria-checked={activo}
             whileTap={{ scale: 0.97 }}
             onClick={() => aoMudar(o.valor)}
-            className={`min-h-[44px] whitespace-nowrap rounded-2xl border px-4 text-sm font-semibold transition-colors ${
+            className={`min-h-[44px] whitespace-nowrap rounded-2xl border px-4 text-sm font-semibold sm:px-5 transition-colors ${
               activo
                 ? 'border-rosa-dark bg-rosa-dark text-white shadow-rosa'
                 : 'border-borda bg-cartao text-texto dark:border-borda-dark dark:bg-cartao-dark dark:text-texto-dark'

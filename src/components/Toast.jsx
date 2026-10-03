@@ -15,7 +15,7 @@ export default function Toast({ mensagem, aoFechar, duracao = 2200 }) {
       {mensagem && (
         <motion.div
           role="status"
-          className="pointer-events-none fixed inset-x-0 bottom-28 z-[60] flex justify-center px-4"
+          className="pointer-events-none fixed inset-x-0 bottom-32 z-[60] flex justify-center px-4 md:bottom-8"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 16 }}

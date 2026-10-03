@@ -17,7 +17,16 @@ export default defineConfig({
         lang: 'pt-AO',
         display: 'standalone',
         orientation: 'any',
+        id: '/',
+        scope: '/',
         start_url: '/',
+        categories: ['finance', 'productivity'],
+        screenshots: [
+          { src: 'screenshots/narrow-1-inicio.jpg', sizes: '780x1688', type: 'image/jpeg', form_factor: 'narrow', label: 'Saldo, entradas e saídas em Kwanzas' },
+          { src: 'screenshots/narrow-2-grafico.jpg', sizes: '780x1688', type: 'image/jpeg', form_factor: 'narrow', label: 'Gastos por categoria' },
+          { src: 'screenshots/narrow-3-metas.jpg', sizes: '780x1688', type: 'image/jpeg', form_factor: 'narrow', label: 'Metas de poupança' },
+          { src: 'screenshots/wide-1-inicio.jpg', sizes: '1280x720', type: 'image/jpeg', form_factor: 'wide', label: 'Cofrinho AO no computador' }
+        ],
         theme_color: '#EC5C82',
         background_color: '#FFFCF7',
         icons: [
@@ -29,7 +38,9 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
         // Páginas legais são ficheiros próprios (não a app): não devem cair no index.html
-        navigateFallbackDenylist: [/^\/(privacidade|termos|armazenamento)\.html$/]
+        navigateFallbackDenylist: [/^\/(privacidade|termos|armazenamento)\.html$/, /^\/\.well-known\//],
+        // As capturas do manifesto não precisam de ficar em cache offline
+        globIgnores: ['screenshots/**']
       }
     })
   ]

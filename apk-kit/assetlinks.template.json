@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "ao.livsolution.cofrinho",
+      "sha256_cert_fingerprints": ["COLOCA:AQUI:O:SHA-256:DA:TUA:CHAVE"]
+    }
+  }
+]

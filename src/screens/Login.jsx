@@ -32,7 +32,7 @@ export default function Login({ aoAutenticado, aoCriarConta, aviso, aoMensagem }
   }
 
   return (
-    <div className="safe-top safe-bottom flex h-full flex-col overflow-y-auto px-6 py-8">
+    <div className="flex h-full flex-col overflow-y-auto px-6 pb-[max(env(safe-area-inset-bottom),2rem)] pt-[max(env(safe-area-inset-top),2rem)]">
       <motion.div className="mx-auto my-auto w-full max-w-md" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex flex-col items-center text-center">
           <Porquinho tamanho={100} />

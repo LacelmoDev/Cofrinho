@@ -65,7 +65,7 @@ export default function Onboarding({ aoConcluir, aoIrParaLogin }) {
   }
 
   return (
-    <div className="safe-top safe-bottom h-full overflow-y-auto px-6 pb-8 pt-8">
+    <div className="h-full overflow-y-auto px-6 pb-[max(env(safe-area-inset-bottom),2rem)] pt-[max(env(safe-area-inset-top),2rem)]">
       <motion.div className="mx-auto w-full max-w-md" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex flex-col items-center text-center">
           <Porquinho tamanho={84} />
