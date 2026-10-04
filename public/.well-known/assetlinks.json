@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.cofrinho_iota.twa",
+      "sha256_cert_fingerprints": ["F9:0C:35:DA:E7:73:AA:40:8A:50:BB:20:92:5D:C6:08:0D:D3:7F:FC:4B:6A:41:2F:D7:4B:DA:DD:87:93:69:3C"]
+    }
+  }
+]
